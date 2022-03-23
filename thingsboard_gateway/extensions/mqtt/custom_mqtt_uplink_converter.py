@@ -1,4 +1,4 @@
-#     Copyright 2022. ThingsBoard
+#     Copyright 2021. ThingsBoard
 #
 #     Licensed under the Apache License, Version 2.0 (the "License");
 #     you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 #     See the License for the specific language governing permissions and
 #     limitations under the License.
 
+import time
 from simplejson import dumps
 
 from thingsboard_gateway.connectors.mqtt.mqtt_uplink_converter import MqttUplinkConverter, log
@@ -21,24 +22,28 @@ class CustomMqttUplinkConverter(MqttUplinkConverter):
     def __init__(self, config):
         self.__config = config.get('converter')
         self.dict_result = {}
+        self.__log = log
+        self.__log.info('Custom MQTT uplink converter created')
 
     def convert(self, topic, body):
         try:
-            self.dict_result["deviceName"] = topic.split("/")[
-                -1]  # getting all data after last '/' symbol in this case: if topic = 'devices/temperature/sensor1' device name will be 'sensor1'.
+            self.__log.info('Converting uplink message: %s', body)
+            self.__log.info('Type of body: %s', type(body))
+            #self.dict_result["deviceName"] = topic.split("/")[-1]  # getting all data after last '/' symbol in this case: if topic = 'devices/temperature/sensor1' device name will be 'sensor1'.
+            self.dict_result["deviceName"] = "testDevice"
             self.dict_result["deviceType"] = "Thermostat"  # just hardcode this
             self.dict_result["telemetry"] = []  # template for telemetry array
-            bytes_to_read = body.replace("0x", "")  # Replacing the 0x (if '0x' in body), needs for converting to bytearray
-            converted_bytes = bytearray.fromhex(bytes_to_read)  # Converting incoming data to bytearray
-            if self.__config.get("extension-config") is not None:
-                for telemetry_key in self.__config["extension-config"]:  # Processing every telemetry key in config for extension
-                    value = 0
-                    for _ in range(self.__config["extension-config"][telemetry_key]):  # reading every value with value length from config
-                        value = value * 256 + converted_bytes.pop(0)  # process and remove byte from processing
-                    telemetry_to_send = {telemetry_key.replace("Bytes", ""): value}  # creating telemetry data for sending into Thingsboard
-                    self.dict_result["telemetry"].append(telemetry_to_send)  # adding data to telemetry array
+            if type(body) is dict:
+                key = list(body.keys())[0]
+                if key == 'dev.sta':
+                    key = 'status'
+                    body[key] = body.pop('dev.sta')
+            
+                self.dict_result["telemetry"].append(body) 
             else:
-                self.dict_result["telemetry"] = {"data": int(body, 0)}  # if no specific configuration in config file - just send data which received
+                res = {"test": body}  # adding temp value to body            
+                #self.dict_result["telemetry"] = {"data": int(body, 0)}
+                self.dict_result["telemetry"].append(res)
             return self.dict_result
 
         except Exception as e:
