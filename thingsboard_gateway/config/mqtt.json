@@ -3,7 +3,7 @@
     "name": "Default Local Broker",
     "host": "127.0.0.1",
     "port": 1883,
-    "clientId": "MQTT_FX_Client",
+    "clientId": "mqtt2",
     "maxMessageNumberPerWorker": 10,
     "maxNumberOfWorkers": 100,
     "security": {
@@ -17,8 +17,8 @@
       "topicFilter": "/sensor/data",
       "converter": {
         "type": "json",
-        "deviceNameJsonExpression": "${serialNumber}",
-        "deviceTypeJsonExpression": "${sensorType}",
+        "deviceNameJsonExpression": "deneme",
+        "deviceTypeJsonExpression": "emre",
         "timeout": 60000,
         "attributes": [
           {
