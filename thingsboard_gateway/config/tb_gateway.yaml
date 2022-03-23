@@ -1,5 +1,5 @@
 thingsboard:
-  host: thingsboard.cloud
+  host: smartapp.netcad.com
   port: 1883
   remoteShell: false
   remoteConfiguration: false
@@ -12,7 +12,7 @@ thingsboard:
     inactivityTimeoutSeconds: 120
     inactivityCheckPeriodSeconds: 10
   security:
-    accessToken: PUT_YOUR_GW_ACCESS_TOKEN_HERE
+    accessToken: NNvMfIlcX4X4F7bFf1Ql
   qos: 1
 storage:
   type: memory
