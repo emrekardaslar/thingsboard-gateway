@@ -45,8 +45,20 @@ connectors:
     name: Custom MQTT Connector
     type: mqtt
     configuration: mqtt_custom.json
-    class: Custom2JsonMqttUplinkConverter
-
+    class: CustomMqttUplinkConverter
+    hostIP: 127.0.0.1
+    clientID: RTU000
+    user: user
+    pass: password
+  -
+    name: Custom MQTT Connector
+    type: mqtt
+    configuration: mqtt_custom.json
+    class: CustomMqttUplinkConverter
+    hostIP: 127.0.0.2
+    clientID: RTU001
+    user: user1
+    pass: password1
 #  -
 #    name: Modbus Connector
 #    type: modbus

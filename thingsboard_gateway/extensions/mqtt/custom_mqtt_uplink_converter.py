@@ -22,30 +22,37 @@ class CustomMqttUplinkConverter(MqttUplinkConverter):
     def __init__(self, config):
         self.__config = config.get('converter')
         self.dict_result = {}
-        self.__log = log
-        self.__log.info('Custom MQTT uplink converter created')
 
-    def convert(self, topic, body):
+    def convert(self, topic, body, deviceID):
         try:
-            self.__log.info('Converting uplink message: %s', body)
-            self.__log.info('Type of body: %s', type(body))
-            #self.dict_result["deviceName"] = topic.split("/")[-1]  # getting all data after last '/' symbol in this case: if topic = 'devices/temperature/sensor1' device name will be 'sensor1'.
-            self.dict_result["deviceName"] = "testDevice"
-            self.dict_result["deviceType"] = "Thermostat"  # just hardcode this
+            # getting all data after last '/' symbol in this case: if topic = 'devices/temperature/sensor1' device name will be 'sensor1'.
+            self.dict_result["deviceName"] = deviceID#topic.split("/")[-1]
+            self.dict_result["deviceType"] = "AC"  # just hardcode this
             self.dict_result["telemetry"] = []  # template for telemetry array
-            if type(body) is dict:
-                key = list(body.keys())[0]
-                if key == 'dev.sta':
-                    key = 'status'
-                    body[key] = body.pop('dev.sta')
-            
-                self.dict_result["telemetry"].append(body) 
+            # Replacing the 0x (if '0x' in body), needs for converting to bytearray
+            #bytes_to_read = body.replace("0x", "")
+            # Converting incoming data to bytearray
+            #converted_bytes = bytearray.fromhex(bytes_to_read)
+            if self.__config.get("extension-config") is not None:
+                # Processing every telemetry key in config for extension
+                for telemetry_key in self.__config["extension-config"]:
+                    value = body
+                    # reading every value with value length from config
+                    #for _ in range(self.__config["extension-config"][telemetry_key]):
+                        # process and remove byte from processing
+                        # value = value * 256 + converted_bytes.pop(0)
+                    # creating telemetry data for sending into Thingsboard
+                    telemetry_to_send = {telemetry_key.replace("Bytes", ""): value}
+                    log.info("telemetry: %s", telemetry_to_send)
+
+                    self.dict_result["telemetry"].append(telemetry_to_send)
+                    # adding data to telemetry array
             else:
-                res = {"test": body}  # adding temp value to body            
-                #self.dict_result["telemetry"] = {"data": int(body, 0)}
-                self.dict_result["telemetry"].append(res)
+                # if no specific configuration in config file - just send data which received
+                self.dict_result["telemetry"] = {"data": int(body, 0)}
             return self.dict_result
 
         except Exception as e:
-            log.exception('Error in converter, for config: \n%s\n and message: \n%s\n', dumps(self.__config), body)
+            log.exception('Error in converter, for config: \n%s\n and message: \n%s\n', dumps(
+                self.__config), body)
             log.exception(e)

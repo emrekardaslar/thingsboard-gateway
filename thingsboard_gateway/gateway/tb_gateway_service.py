@@ -423,15 +423,20 @@ class TBGatewayService:
         connectors_persistent_keys = self.__load_persistent_connector_keys()
         if self.__config.get("connectors"):
             for connector in self.__config['connectors']:
+                #log.info("SERVICE CONFIG: %s ", connector)
                 try:
                     connector_persistent_key = None
+                    connector_hostIP = connector["hostIP"]
+                    connector_clientID = connector["clientID"]
+                    connector_user = connector["user"]
+                    connector_pass = connector["pass"]
+                    #connector_host_IP = connector["hostIP"]
+
                     if connector['type'] == "grpc" and self.__grpc_manager is None:
                         log.error("Cannot load connector with name: %s and type grpc. GRPC server is disabled!", connector['name'])
                         continue
                     if connector['type'] != "grpc":
-                        connector_class = TBModuleLoader.import_module(connector['type'],
-                                                                       self._default_connectors.get(connector['type'],
-                                                                                                    connector.get('class')))
+                        connector_class = TBModuleLoader.import_module(connector['type'], self._default_connectors.get(connector['type'], connector.get('class')))
                         self._implemented_connectors[connector['type']] = connector_class
                     elif connector['type'] == "grpc":
                         if connector.get('key') == "auto":
@@ -459,12 +464,16 @@ class TBGatewayService:
                         self.connectors_configs[connector['type']] = []
                     if connector['type'] != 'grpc' and isinstance(connector_conf, dict):
                         connector_conf["name"] = connector['name']
+                    #TO DO
                     self.connectors_configs[connector['type']].append({"name": connector['name'],
-                                                                       "config": {connector['configuration']: connector_conf} if connector[
-                                                                                                                                     'type'] != 'grpc' else connector_conf,
+                                                                       "config": {connector['configuration']: connector_conf} if connector['type'] != 'grpc' else connector_conf,
                                                                        "config_updated": stat(config_file_path),
                                                                        "config_file_path": config_file_path,
-                                                                       "grpc_key": connector_persistent_key})
+                                                                       "grpc_key": connector_persistent_key,
+                                                                       "hostIP": connector_hostIP,
+                                                                       "clientID" : connector_clientID,
+                                                                       "user" : connector_user,
+                                                                       "pass" : connector_pass})
                 except Exception as e:
                     log.exception("Error on loading connector: %r", e)
             if connectors_persistent_keys:
@@ -478,13 +487,20 @@ class TBGatewayService:
         for connector_type in self.connectors_configs:
             for connector_config in self.connectors_configs[connector_type]:
                 if connector_type.lower() != 'grpc':
+                    hostIP = connector_config["hostIP"]
+                    clientID = connector_config["clientID"]
+                    secUser = connector_config["user"]
+                    secPass = connector_config["pass"]
                     for config in connector_config["config"]:
-                        connector = None
                         try:
                             if connector_config["config"][config] is not None:
                                 if self._implemented_connectors[connector_type]:
-                                    connector = self._implemented_connectors[connector_type](self, connector_config["config"][config], connector_type)
-                                    connector.setName(connector_config["name"])
+                                    log.info("SERVICE CONFIG: %s ", hostIP)
+                                    #TO DO
+                                    connector = self._implemented_connectors[connector_type](
+                                        self, connector_config["config"][config], connector_type, hostIP, clientID, secUser, secPass)
+                                    connector_name = clientID + " " + hostIP
+                                    connector.setName(connector_name)#connector_config["name"])
                                     self.available_connectors[connector.get_name()] = connector
                                     connector.open()
                                 else:

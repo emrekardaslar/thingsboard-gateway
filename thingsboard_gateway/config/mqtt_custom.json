@@ -1,36 +1,18 @@
 {
   "broker": {
-    "name": "Default Local Broker",
-    "host": "127.0.0.1",
     "port": 1883,
-    "clientId": "mqtt2",
-    "maxMessageNumberPerWorker": 10,
-    "maxNumberOfWorkers": 100,
-    "security": {
-      "type": "basic",
-      "username": "user",
-      "password": "password"
-    }
+    "maxMessageNumberPerWorker": 20,
+    "maxNumberOfWorkers": 200
   },
   "mapping": [
     {
       "topicFilter": "/v2/rt.dev5.sta",
       "converter": {
         "type": "custom",
-        "extension":"Custom2JsonMqttUplinkConverter",
-        "deviceNameJsonExpression": "deneme",
-        "deviceTypeJsonExpression": "emre",
-        "timeout": 60000,
-        "attributes": [
-         
-        ],
-        "timeseries": [
-          {
-            "type": "double",
-            "key": "acstatus",
-            "value": "${topicFilter}"
-          }
-        ]
+        "extension": "CustomMqttUplinkConverter",
+        "extension-config": {
+          "ACSTATUS": 1
+        }
       }
     }
   ],
