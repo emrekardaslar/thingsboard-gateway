@@ -55,7 +55,7 @@ connectors:
     type: mqtt
     configuration: mqtt_custom.json
     class: CustomMqttUplinkConverter
-    hostIP: 127.0.0.2
+    hostIP: broker.emqx.io
     clientID: RTU001
     user: user1
     pass: password1
