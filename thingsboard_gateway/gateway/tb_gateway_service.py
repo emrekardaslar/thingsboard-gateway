@@ -497,8 +497,12 @@ class TBGatewayService:
                                 if self._implemented_connectors[connector_type]:
                                     log.info("SERVICE CONFIG: %s ", hostIP)
                                     #TO DO
-                                    connector = self._implemented_connectors[connector_type](
-                                        self, connector_config["config"][config], connector_type, hostIP, clientID, secUser, secPass)
+                                    if connector_type == 'mqtt':
+                                        connector = self._implemented_connectors[connector_type](
+                                            self, connector_config["config"][config], connector_type, hostIP, clientID, secUser, secPass)
+                                    else:
+                                        connector = self._implemented_connectors[connector_type](
+                                            self, connector_config["config"][config], connector_type)
                                     connector_name = clientID + " " + hostIP
                                     connector.setName(connector_name)#connector_config["name"])
                                     self.available_connectors[connector.get_name()] = connector
