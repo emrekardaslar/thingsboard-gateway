@@ -51,7 +51,9 @@ class MqttConnector(Connector, Thread):
         self.__disconnect_requests = []
         self.__attribute_requests = []
         self.__attribute_updates = []
-
+        self.lastDataDict = {}
+        self.lastDataDict[clientID] = {}
+        self.initLastDataDict(clientID)
         mandatory_keys = {
             "mapping": ['topicFilter', 'converter'],
             # "serverSideRpc": ['deviceNameFilter', 'methodFilter', 'requestTopicExpression', 'valueExpression'],
@@ -362,9 +364,36 @@ class MqttConnector(Connector, Thread):
                 worker.stopped = True
                 self.__workers_thread_pool.remove(worker)
 
+    def initLastDataDict(self, clientID):
+        for element in self.config['mapping']:
+            self.__log.info("FILTER: %s", element['topicFilter'])
+            self.lastDataDict[clientID][element['topicFilter']] = {"ts": time(), "value": 1}
+            self.__log.info(self.lastDataDict)
+            #{'RTU003': {'/v2/rt.di.reg5': 1}}
+
+    def checkTelemetryUpdate(self, clientID, topic, content):
+        self.__log.info(self.lastDataDict)
+        if self.lastDataDict[clientID][topic]['value'] == content:
+                #return False if more than 1 minute has passed since last update
+                if time() - self.lastDataDict[clientID][topic]['ts'] > 60:
+                    self.__log.info("Update: %s", content)
+                    self.lastDataDict[clientID][topic]['ts'] = time()
+                    self.lastDataDict[clientID][topic]['value'] = content
+                    return False
+                else:
+                    self.__log.info("Same")
+                    return True
+        else:
+            self.lastDataDict[clientID][topic]['value'] = content
+            self.__log.info(self.lastDataDict)
+            return False
+
     def _on_message(self, client, userdata, message):
         self.statistics['MessagesReceived'] += 1
         content = TBUtility.decode(message)
+        if self.is_connected():
+            if self.checkTelemetryUpdate(self.__client_ID, message.topic, content) is True:
+                return
         # Check if message topic exists in mappings "i.e., I'm posting telemetry/attributes" ---------------------------
         topic_handlers = [
             regex for regex in self.__mapping_sub_topics if fullmatch(regex, message.topic)]
