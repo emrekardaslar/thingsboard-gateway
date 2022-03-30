@@ -375,7 +375,7 @@ class MqttConnector(Connector, Thread):
         self.__log.info(self.lastDataDict)
         if self.lastDataDict[clientID][topic]['value'] == content:
                 #return False if more than 1 minute has passed since last update
-                if time() - self.lastDataDict[clientID][topic]['ts'] > 60:
+                if time() - self.lastDataDict[clientID][topic]['ts'] > self.config.get("update_interval_seconds", 60):
                     self.__log.info("Update: %s", content)
                     self.lastDataDict[clientID][topic]['ts'] = time()
                     self.lastDataDict[clientID][topic]['value'] = content

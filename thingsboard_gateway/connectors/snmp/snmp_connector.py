@@ -63,7 +63,7 @@ class SNMPConnector(Connector, Thread):
     def checkTelemetryUpdate(self, device, telemetry, key):
         value = telemetry[key]
         if value == self.lastDataDict[device][key]["value"]:
-            if time() - self.lastDataDict[device][key]["ts"] > 60:
+            if time() - self.lastDataDict[device][key]["ts"] > self.__config.get("update_interval_seconds", 60):
                 log.info("Telemetry value \"%s\" for device \"%s\" is not changed for more than 60 seconds", key, device)
                 log.info("New value: %s", value)
                 self.lastDataDict[device][key]["ts"] = time()

@@ -1,4 +1,5 @@
 {
+  "update_interval_seconds": 60,
   "broker": {
     "port": 1883,
     "maxMessageNumberPerWorker": 20,
