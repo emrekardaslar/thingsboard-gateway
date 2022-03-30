@@ -426,11 +426,10 @@ class TBGatewayService:
                 #log.info("SERVICE CONFIG: %s ", connector)
                 try:
                     connector_persistent_key = None
-                    connector_hostIP = connector["hostIP"]
-                    connector_clientID = connector["clientID"]
-                    connector_user = connector["user"]
-                    connector_pass = connector["pass"]
-                    #connector_host_IP = connector["hostIP"]
+                    connector_hostIP = connector.get("hostIP", None)
+                    connector_clientID = connector.get("clientID", None)
+                    connector_user = connector.get("user", None)
+                    connector_pass = connector.get("pass", None)
 
                     if connector['type'] == "grpc" and self.__grpc_manager is None:
                         log.error("Cannot load connector with name: %s and type grpc. GRPC server is disabled!", connector['name'])
@@ -487,23 +486,25 @@ class TBGatewayService:
         for connector_type in self.connectors_configs:
             for connector_config in self.connectors_configs[connector_type]:
                 if connector_type.lower() != 'grpc':
-                    hostIP = connector_config["hostIP"]
-                    clientID = connector_config["clientID"]
-                    secUser = connector_config["user"]
-                    secPass = connector_config["pass"]
+                    hostIP = connector_config.get("hostIP", None)
+                    clientID = connector_config.get("clientID", None)
+                    secUser = connector_config.get("user", None)
+                    secPass = connector_config.get("pass", None)
                     for config in connector_config["config"]:
                         try:
                             if connector_config["config"][config] is not None:
                                 if self._implemented_connectors[connector_type]:
                                     log.info("SERVICE CONFIG: %s ", hostIP)
                                     #TO DO
-                                    if connector_type == 'mqtt':
+                                    if hostIP is not None and clientID is not None and secUser is not None and secPass is not None:
                                         connector = self._implemented_connectors[connector_type](
                                             self, connector_config["config"][config], connector_type, hostIP, clientID, secUser, secPass)
+                                        connector_name = clientID + " " + hostIP
                                     else:
                                         connector = self._implemented_connectors[connector_type](
                                             self, connector_config["config"][config], connector_type)
-                                    connector_name = clientID + " " + hostIP
+                                        connector_name = connector_config["name"]
+                                   
                                     connector.setName(connector_name)#connector_config["name"])
                                     self.available_connectors[connector.get_name()] = connector
                                     connector.open()
@@ -531,7 +532,7 @@ class TBGatewayService:
             self.__close_connectors()
             self._load_connectors()
             self._connect_with_connectors()
-
+    
     def send_to_storage(self, connector_name, data):
         try:
             self.__converted_data_queue.put((connector_name, data), True, 100)

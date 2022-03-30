@@ -33,10 +33,6 @@ connectors:
   name: Custom MQTT Connector
   type: snmp
   configuration: snmp_custom.json
-  hostIP: 127.0.0.1
-  clientID: notimportant
-  user: user
-  pass: password
 -
   name: Custom MQTT Connector
   type: mqtt
