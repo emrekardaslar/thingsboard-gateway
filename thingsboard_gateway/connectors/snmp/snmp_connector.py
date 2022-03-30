@@ -51,6 +51,30 @@ class SNMPConnector(Connector, Thread):
             }
         self.__methods = ["get", "multiget", "getnext", "multigetnext", "walk", "multiwalk", "set", "multiset", "bulkget", "bulkwalk", "table", "bulktable"]
         self.__datatypes = ('attributes', 'telemetry')
+        self.initLastDataDict()
+    
+    def initLastDataDict(self):
+        self.lastDataDict = {}
+        for device in self.__devices:
+            self.lastDataDict[device["deviceName"]] = {}
+            for telemetry in device["telemetry"]:
+                self.lastDataDict[device["deviceName"]][telemetry["key"]] = {"ts": time(), "value": 1}
+    
+    def checkTelemetryUpdate(self, device, telemetry, key):
+        value = telemetry[key]
+        if value == self.lastDataDict[device][key]["value"]:
+            if time() - self.lastDataDict[device][key]["ts"] > 60:
+                log.info("Telemetry value \"%s\" for device \"%s\" is not changed for more than 60 seconds", key, device)
+                log.info("New value: %s", value)
+                self.lastDataDict[device][key]["ts"] = time()
+                self.lastDataDict[device][key]["value"] = value
+                return False
+            else:
+                return True
+        else:
+            self.lastDataDict[device][key]["ts"] = time()
+            self.lastDataDict[device][key]["value"] = value
+            return False
 
     def open(self):
         self.__stopped = False
@@ -122,9 +146,13 @@ class SNMPConnector(Connector, Thread):
             self.__gateway.send_rpc_reply(device=content["device"], req_id=content["data"]["id"], success_sent=False)
 
     def collect_statistic_and_send(self, connector_name, data):
-        self.statistics["MessagesReceived"] = self.statistics["MessagesReceived"] + 1
-        self.__gateway.send_to_storage(connector_name, data)
-        self.statistics["MessagesSent"] = self.statistics["MessagesSent"] + 1
+        telemetry = data['telemetry']
+        if len(telemetry) > 0:
+            keys = list(telemetry[0].keys())
+            if self.checkTelemetryUpdate(data['deviceName'], telemetry[0], keys[0]) is False:
+                self.statistics["MessagesReceived"] = self.statistics["MessagesReceived"] + 1
+                self.__gateway.send_to_storage(connector_name, data)
+                self.statistics["MessagesSent"] = self.statistics["MessagesSent"] + 1
 
     def __process_data(self, device):
         common_parameters = self.__get_common_parameters(device)

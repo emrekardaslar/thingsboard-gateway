@@ -1,3 +1,4 @@
+
 thingsboard:
   host: smartapp.netcad.com
   port: 1883
@@ -18,15 +19,6 @@ storage:
   type: memory
   read_records_count: 100
   max_records_count: 100000
-#  type: file
-#  data_folder_path: ./data/
-#  max_file_count: 10
-#  max_read_records_count: 10
-#  max_records_per_file: 10000
-#  type: sqlite
-#  data_file_path: ./data/data.db
-#  messages_ttl_check_in_hours: 1
-#  messages_ttl_in_days: 7
 grpc:
   enabled: false
   serverPort: 9595
@@ -37,99 +29,47 @@ grpc:
   minTimeBetweenPingsMs: 10000
   minPingIntervalWithoutDataMs: 5000
 connectors:
-#  -
-#    name: MQTT Broker Connector
-#    type: mqtt
-#    configuration: mqtt.json
-  -
-    name: Custom MQTT Connector
-    type: mqtt
-    configuration: mqtt_custom.json
-    class: CustomMqttUplinkConverter
-    hostIP: 127.0.0.1
-    clientID: RTU000
-    user: user
-    pass: password
-  -
-    name: Custom MQTT Connector
-    type: mqtt
-    configuration: mqtt_custom.json
-    class: CustomMqttUplinkConverter
-    hostIP: broker.emqx.io
-    clientID: RTU001
-    user: user1
-    pass: password1
-#  -
-#    name: Modbus Connector
-#    type: modbus
-#    configuration: modbus.json
-#
-#  -
-#    name: Modbus Connector
-#    type: modbus
-#    configuration: modbus_serial.json
-#
-#  -
-#    name: OPC-UA Connector
-#    type: opcua
-#    configuration: opcua.json
-#
-#  -
-#    name: BLE Connector
-#    type: ble
-#    configuration: ble.json
-#
-#  -
-#    name: REQUEST Connector
-#    type: request
-#    configuration: request.json
-#
-#  -
-#    name: CAN Connector
-#    type: can
-#    configuration: can.json
-#
-#  -
-#    name: BACnet Connector
-#    type: bacnet
-#    configuration: bacnet.json
-#
-#  -
-#    name: ODBC Connector
-#    type: odbc
-#    configuration: odbc.json
-#
-#  -
-#    name: REST Connector
-#    type: rest
-#    configuration: rest.json
-#
-#  -
-#    name: SNMP Connector
-#    type: snmp
-#    configuration: snmp.json
-#
-#  -
-#    name: FTP Connector
-#    type: ftp
-#    configuration: ftp.json
-#
-#  -
-#    name: Socket TCP/UDP Connector
-#    type: socket
-#    configuration: socket.json
-#
-# ========= Customization ==========
-#
-#
-#  -
-#    name: Custom Serial Connector
-#    type: serial
-#    configuration: custom_serial.json
-#    class: CustomSerialConnector
-#
-#  -
-#    name: GRPC Connector 1
-#    key: auto
-#    type: grpc
-#    configuration: grpc_connector_1.json
+-
+  name: Custom MQTT Connector
+  type: snmp
+  configuration: snmp_custom.json
+  hostIP: 127.0.0.1
+  clientID: notimportant
+  user: user
+  pass: password
+-
+  name: Custom MQTT Connector
+  type: mqtt
+  configuration: mqtt_custom.json
+  class: CustomMqttUplinkConverter
+  hostIP: 127.0.0.1
+  clientID: RTU000
+  user: user
+  pass: password
+-
+  name: Custom MQTT Connector
+  type:  mqtt
+  configuration:  mqtt_custom.json
+  class: CustomMqttUplinkConverter
+  hostIP: 127.0.0.1
+  clientID: RTU001
+  user: user
+  pass: password
+-
+  name: Custom MQTT Connector
+  type:  mqtt
+  configuration:  mqtt_custom.json
+  class: CustomMqttUplinkConverter
+  hostIP: 127.0.0.1
+  clientID: RTU002
+  user: user
+  pass: password
+-
+  name: Custom MQTT Connector
+  type:  mqtt
+  configuration:  mqtt_custom.json
+  class: CustomMqttUplinkConverter
+  hostIP: 127.0.0.1
+  clientID: RTU003
+  user: user
+  pass: password
