@@ -624,6 +624,8 @@ class TBGatewayService:
         telemetry = {}
         telemetry_with_ts = []
         for item in data["telemetry"]:
+            if item == "ts" or item == "values":
+                return data
             if item.get("ts") is None:
                 telemetry = {**telemetry, **item}
             else:

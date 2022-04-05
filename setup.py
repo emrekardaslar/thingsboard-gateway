@@ -21,16 +21,16 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-VERSION = "3.0.1"
+VERSION = "3.0.1.0"
 
 setup(
     version=VERSION,
-    name="thingsboard-gateway",
-    author="ThingsBoard",
-    author_email="info@thingsboard.io",
+    name="iot-gateway",
+    author="emre",
+    author_email="emre.kardaslar@gmail.com",
     license="Apache Software License (Apache Software License 2.0)",
-    description="Thingsboard Gateway for IoT devices.",
-    url="https://github.com/thingsboard/thingsboard-gateway",
+    description="NDU Gateway for IoT devices.",
+    url="https://github.com/emrekardaslar/thingsboard-gateway",
     long_description=long_description,
     long_description_content_type="text/markdown",
     include_package_data=True,
