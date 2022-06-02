@@ -35,6 +35,15 @@ connectors:
   configuration: mqtt_custom.json
   class: CustomMqttUplinkConverter
   hostIP: broker.hivemq.com
-  clientID: RTU338
+  clientID: DEVICE-rtu1
+  user: user
+  pass: password
+-
+  name: Custom MQTT Connector
+  type: mqtt
+  configuration: mqtt_custom.json
+  class: CustomMqttUplinkConverter
+  hostIP: broker.hivemq.com
+  clientID: DEVICE-rtu2
   user: user
   pass: password

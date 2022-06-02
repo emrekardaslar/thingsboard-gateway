@@ -7,7 +7,7 @@
   },
   "mapping": [
     {
-      "topicFilter": "v2/rt.dev[5].bi[0].u16[20]/pub",
+      "topicFilter": "v2/+/rt.dev[5].bi[0].u16[20]/pub",
       "converter": {
         "type": "custom",
         "extension": "CustomMqttUplinkConverter",
@@ -17,52 +17,12 @@
       }
     },
     {
-      "topicFilter": "v2/rt.dev[5].sta",
+      "topicFilter": "v2/+/rt.dev[5].sta",
       "converter": {
         "type": "custom",
         "extension": "CustomMqttUplinkConverter",
         "extension-config": {
           "Door1": 1
-        }
-      }
-    },
-    {
-      "topicFilter": "/v2/rt.di.reg6",
-      "converter": {
-        "type": "custom",
-        "extension": "CustomMqttUplinkConverter",
-        "extension-config": {
-          "Battery Charging Status": 1
-        }
-      }
-    },
-    {
-      "topicFilter": "/v2/rt.dev3.bi0.u16x0",
-      "converter": {
-        "type": "custom",
-        "extension": "CustomMqttUplinkConverter",
-        "extension-config": {
-          "Battery Voltage": 100
-        }
-      }
-    },
-    {
-      "topicFilter": "/v2/rt.dev0.sta",
-      "converter": {
-        "type": "custom",
-        "extension": "CustomMqttUplinkConverter",
-        "extension-config": {
-          "Grid Comm Status": 1
-        }
-      }
-    },
-    {
-      "topicFilter": "/v2/rt.di.reg5",
-      "converter": {
-        "type": "custom",
-        "extension": "CustomMqttUplinkConverter",
-        "extension-config": {
-          "GRID": 1
         }
       }
     }

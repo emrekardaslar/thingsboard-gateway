@@ -249,9 +249,10 @@ class MqttConnector(Connector, Thread):
                             "Cannot find converter for %s topic", mapping["topicFilter"])
                         continue
 
+                    topic = self.remove_nodeid(mapping["topicFilter"])
                     # Setup regexp topic acceptance list ---------------------------------------------------------------
                     regex_topic = TBUtility.topic_to_regex(
-                        self.check_topic(mapping["topicFilter"]))
+                        self.check_topic(topic))
 
                     # There may be more than one converter per topic, so I'm using vectors
                     if not self.__mapping_sub_topics.get(regex_topic):
@@ -367,8 +368,8 @@ class MqttConnector(Connector, Thread):
     def initLastDataDict(self, clientID):
         for element in self.config['mapping']:
             self.__log.info("FILTER: %s", element['topicFilter'])
-
-            self.lastDataDict[clientID][self.check_topic(element['topicFilter'])] = {"ts": time(), "value": 1}
+            topic = self.remove_nodeid(element['topicFilter'])
+            self.lastDataDict[clientID][self.check_topic(topic)] = {"ts": time(), "value": 1}
             self.__log.info(self.lastDataDict)
             # {'RTU003': {'/v2/rt.di.reg5': 1}}
 
@@ -398,9 +399,19 @@ class MqttConnector(Connector, Thread):
                 topic = topic.replace(']', '')
         return topic
 
+    def remove_nodeid(self,  topic):
+        node_id = topic.split("/")[1]
+        return topic.replace('/' + node_id, '')
+
     def _on_message(self, client, userdata, message):
         self.statistics['MessagesReceived'] += 1
-        valid_topic = self.check_topic(message.topic)
+        topic = message.topic
+        node_id = message.topic.split("/")[1]
+        if node_id != self.__client_ID.split('-')[1]:
+            return
+        else:
+            topic = topic.replace('/' + node_id, '')
+        valid_topic = self.check_topic(topic)
         content = TBUtility.decode(message)
         if self.is_connected():
             if self.checkTelemetryUpdate(self.__client_ID, valid_topic, content) is True:
