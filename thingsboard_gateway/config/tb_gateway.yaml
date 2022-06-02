@@ -13,7 +13,7 @@ thingsboard:
     inactivityTimeoutSeconds: 120
     inactivityCheckPeriodSeconds: 10
   security:
-    accessToken: NNvMfIlcX4X4F7bFf1Ql
+    accessToken: mEfcozqBATq39mKqRWGG
   qos: 1
 storage:
   type: memory
@@ -31,41 +31,10 @@ grpc:
 connectors:
 -
   name: Custom MQTT Connector
-  type: snmp
-  configuration: snmp_custom.json
--
-  name: Custom MQTT Connector
   type: mqtt
   configuration: mqtt_custom.json
   class: CustomMqttUplinkConverter
-  hostIP: 127.0.0.1
-  clientID: RTU000
-  user: user
-  pass: password
--
-  name: Custom MQTT Connector
-  type:  mqtt
-  configuration:  mqtt_custom.json
-  class: CustomMqttUplinkConverter
-  hostIP: 127.0.0.1
-  clientID: RTU001
-  user: user
-  pass: password
--
-  name: Custom MQTT Connector
-  type:  mqtt
-  configuration:  mqtt_custom.json
-  class: CustomMqttUplinkConverter
-  hostIP: 127.0.0.1
-  clientID: RTU002
-  user: user
-  pass: password
--
-  name: Custom MQTT Connector
-  type:  mqtt
-  configuration:  mqtt_custom.json
-  class: CustomMqttUplinkConverter
-  hostIP: 127.0.0.1
-  clientID: RTU003
+  hostIP: broker.hivemq.com
+  clientID: RTU338
   user: user
   pass: password

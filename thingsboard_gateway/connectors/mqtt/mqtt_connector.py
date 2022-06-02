@@ -44,7 +44,7 @@ class MqttConnector(Connector, Thread):
         self.__broker = config.get('broker')
         self.__hostIP = hostIP
         log.info("MQTT CONNECTOR: %s ", hostIP)
-        
+
         self.__mapping = []
         self.__server_side_rpc = []
         self.__connect_requests = []
@@ -67,19 +67,19 @@ class MqttConnector(Connector, Thread):
         self.load_handlers('mapping', mandatory_keys['mapping'], self.__mapping)
 
         # RPCs, i.e., remote procedure calls (ThingsBoard towards devices) handlers
-        #self.load_handlers('serverSideRpc', mandatory_keys['serverSideRpc'], self.__server_side_rpc)
+        # self.load_handlers('serverSideRpc', mandatory_keys['serverSideRpc'], self.__server_side_rpc)
 
         # Connect requests, i.e., telling ThingsBoard that a device is online even if it does not post telemetry
-        #self.load_handlers('connectRequests', mandatory_keys['connectRequests'], self.__connect_requests)
+        # self.load_handlers('connectRequests', mandatory_keys['connectRequests'], self.__connect_requests)
 
         # Disconnect requests, i.e., telling ThingsBoard that a device is offline even if keep-alive has not expired yet
-        #self.load_handlers('disconnectRequests', mandatory_keys['disconnectRequests'], self.__disconnect_requests)
+        # self.load_handlers('disconnectRequests', mandatory_keys['disconnectRequests'], self.__disconnect_requests)
 
         # Shared attributes direct requests, i.e., asking ThingsBoard for some shared attribute value
-        #self.load_handlers('attributeRequests', mandatory_keys['attributeRequests'], self.__attribute_requests)
+        # self.load_handlers('attributeRequests', mandatory_keys['attributeRequests'], self.__attribute_requests)
 
         # Attributes updates requests, i.e., asking ThingsBoard to send updates about an attribute
-        #self.load_handlers('attributeUpdates', mandatory_keys['attributeUpdates'], self.__attribute_updates)
+        # self.load_handlers('attributeUpdates', mandatory_keys['attributeUpdates'], self.__attribute_updates)
 
         # Setup topic substitution lists for each class of handlers ----------------------------------------------------
         self.__mapping_sub_topics = {}
@@ -88,10 +88,10 @@ class MqttConnector(Connector, Thread):
         self.__attribute_requests_sub_topics = {}
 
         # Set up external MQTT broker connection -----------------------------------------------------------------------
-        self.__client_ID = clientID #self.__broker.get("clientId", ''.join(random.choice(string.ascii_lowercase) for _ in range(23)))
+        self.__client_ID = clientID  # self.__broker.get("clientId", ''.join(random.choice(string.ascii_lowercase) for _ in range(23)))
         self._client = Client(self.__client_ID)
         self.setName(self.__client_ID + " " + hostIP)
-        #config.get("name", self.__broker.get("name", 'Mqtt Broker ' + ''.join(random.choice(string.ascii_lowercase) for _ in range(5)))))
+        # config.get("name", self.__broker.get("name", 'Mqtt Broker ' + ''.join(random.choice(string.ascii_lowercase) for _ in range(5)))))
 
         self._client.username_pw_set(user, password)
 
@@ -251,7 +251,7 @@ class MqttConnector(Connector, Thread):
 
                     # Setup regexp topic acceptance list ---------------------------------------------------------------
                     regex_topic = TBUtility.topic_to_regex(
-                        mapping["topicFilter"])
+                        self.check_topic(mapping["topicFilter"]))
 
                     # There may be more than one converter per topic, so I'm using vectors
                     if not self.__mapping_sub_topics.get(regex_topic):
@@ -367,36 +367,47 @@ class MqttConnector(Connector, Thread):
     def initLastDataDict(self, clientID):
         for element in self.config['mapping']:
             self.__log.info("FILTER: %s", element['topicFilter'])
-            self.lastDataDict[clientID][element['topicFilter']] = {"ts": time(), "value": 1}
+
+            self.lastDataDict[clientID][self.check_topic(element['topicFilter'])] = {"ts": time(), "value": 1}
             self.__log.info(self.lastDataDict)
-            #{'RTU003': {'/v2/rt.di.reg5': 1}}
+            # {'RTU003': {'/v2/rt.di.reg5': 1}}
 
     def checkTelemetryUpdate(self, clientID, topic, content):
         self.__log.info(self.lastDataDict)
         if self.lastDataDict[clientID][topic]['value'] == content:
-                #return False if more than 1 minute has passed since last update
-                if time() - self.lastDataDict[clientID][topic]['ts'] > self.config.get("update_interval_seconds", 60):
-                    self.__log.info("Update: %s", content)
-                    self.lastDataDict[clientID][topic]['ts'] = time()
-                    self.lastDataDict[clientID][topic]['value'] = content
-                    return False
-                else:
-                    self.__log.info("Same")
-                    return True
+            # return False if more than 1 minute has passed since last update
+            if time() - self.lastDataDict[clientID][topic]['ts'] > self.config.get("update_interval_seconds", 60):
+                self.__log.info("Update: %s", content)
+                self.lastDataDict[clientID][topic]['ts'] = time()
+                self.lastDataDict[clientID][topic]['value'] = content
+                return False
+            else:
+                self.__log.info("Same")
+                return True
         else:
             self.lastDataDict[clientID][topic]['value'] = content
             self.__log.info(self.lastDataDict)
             return False
 
+    def check_topic(self, topic):
+        import re
+        if re.search('\[.*?\]', topic):
+            len = topic.count('[')
+            for i in range(len):
+                topic = topic.replace('[', 'X')
+                topic = topic.replace(']', '')
+        return topic
+
     def _on_message(self, client, userdata, message):
         self.statistics['MessagesReceived'] += 1
+        valid_topic = self.check_topic(message.topic)
         content = TBUtility.decode(message)
         if self.is_connected():
-            if self.checkTelemetryUpdate(self.__client_ID, message.topic, content) is True:
+            if self.checkTelemetryUpdate(self.__client_ID, valid_topic, content) is True:
                 return
         # Check if message topic exists in mappings "i.e., I'm posting telemetry/attributes" ---------------------------
         topic_handlers = [
-            regex for regex in self.__mapping_sub_topics if fullmatch(regex, message.topic)]
+            regex for regex in self.__mapping_sub_topics if fullmatch(regex, valid_topic)]
 
         if topic_handlers:
             # Note: every topic may be associated to one or more converter. This means that a single MQTT message
