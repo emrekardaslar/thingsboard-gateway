@@ -7,7 +7,7 @@
   },
   "mapping": [
     {
-      "topicFilter": "v2/+/rt.dev[5].bi[0].u16[20]/pub",
+      "topicFilter": "v2/",
       "converter": {
         "type": "custom",
         "extension": "CustomMqttUplinkConverter",

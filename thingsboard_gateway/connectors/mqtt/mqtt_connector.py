@@ -51,9 +51,9 @@ class MqttConnector(Connector, Thread):
         self.__disconnect_requests = []
         self.__attribute_requests = []
         self.__attribute_updates = []
-        self.lastDataDict = {}
-        self.lastDataDict[clientID] = {}
-        self.initLastDataDict(clientID)
+        # self.lastDataDict = {}
+        # self.lastDataDict[clientID] = {}
+        #self.initLastDataDict(clientID)
         mandatory_keys = {
             "mapping": ['topicFilter', 'converter'],
             # "serverSideRpc": ['deviceNameFilter', 'methodFilter', 'requestTopicExpression', 'valueExpression'],
@@ -181,6 +181,8 @@ class MqttConnector(Connector, Thread):
                 if not self._connected:
                     sleep(1)
             except ConnectionRefusedError as e:
+                self.__log.error('ERROR ON IP: ')
+                self.__log.error(self.__hostIP)
                 self.__log.error(e)
                 sleep(10)
 
@@ -413,9 +415,9 @@ class MqttConnector(Connector, Thread):
             topic = topic.replace('/' + node_id, '')
         valid_topic = self.check_topic(topic)
         content = TBUtility.decode(message)
-        if self.is_connected():
-            if self.checkTelemetryUpdate(self.__client_ID, valid_topic, content) is True:
-                return
+        # if self.is_connected():
+            # if self.checkTelemetryUpdate(self.__client_ID, valid_topic, content) is True:
+            #     return
         # Check if message topic exists in mappings "i.e., I'm posting telemetry/attributes" ---------------------------
         topic_handlers = [
             regex for regex in self.__mapping_sub_topics if fullmatch(regex, valid_topic)]
