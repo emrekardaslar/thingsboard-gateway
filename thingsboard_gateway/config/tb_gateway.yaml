@@ -4,7 +4,10 @@ thingsboard:
   port: 1883
   remoteShell: false
   remoteConfiguration: false
-  statsSendPeriodInSeconds: 3600
+  statistics:
+    enable: true
+    statsSendPeriodInSeconds: 3600
+    configuration: statistics.json
   minPackSendDelayMS: 0
   checkConnectorsConfigurationInSeconds: 60
   handleDeviceRenaming: true
@@ -29,6 +32,7 @@ grpc:
   minTimeBetweenPingsMs: 10000
   minPingIntervalWithoutDataMs: 5000
 connectors:
+<<<<<<< HEAD
 -
   name: Custom MQTT Connector
   type: mqtt
@@ -47,3 +51,94 @@ connectors:
   clientID: DEVICE-rtu2
   user: user
   pass: password
+=======
+  -
+    name: MQTT Broker Connector
+    type: mqtt
+    configuration: mqtt.json
+
+#  -
+#    name: Modbus Connector
+#    type: modbus
+#    configuration: modbus.json
+#
+#  -
+#    name: Modbus Connector
+#    type: modbus
+#    configuration: modbus_serial.json
+#
+#  -
+#    name: OPC-UA Connector
+#    type: opcua
+#    configuration: opcua.json
+#
+#  -
+#    name: OPC-UA Connector
+#    type: opcua_asyncio
+#    configuration: opcua.json
+#
+#  -
+#    name: BLE Connector
+#    type: ble
+#    configuration: ble.json
+#
+#  -
+#    name: REQUEST Connector
+#    type: request
+#    configuration: request.json
+#
+#  -
+#    name: CAN Connector
+#    type: can
+#    configuration: can.json
+#
+#  -
+#    name: BACnet Connector
+#    type: bacnet
+#    configuration: bacnet.json
+#
+#  -
+#    name: ODBC Connector
+#    type: odbc
+#    configuration: odbc.json
+#
+#  -
+#    name: REST Connector
+#    type: rest
+#    configuration: rest.json
+#
+#  -
+#    name: SNMP Connector
+#    type: snmp
+#    configuration: snmp.json
+#
+#  -
+#    name: FTP Connector
+#    type: ftp
+#    configuration: ftp.json
+#
+#  -
+#    name: Socket TCP/UDP Connector
+#    type: socket
+#    configuration: socket.json
+#
+#  -
+#    name: XMPP Connector
+#    type: xmpp
+#    configuration: xmpp.json
+#
+# ========= Customization ==========
+#
+#
+#  -
+#    name: Custom Serial Connector
+#    type: serial
+#    configuration: custom_serial.json
+#    class: CustomSerialConnector
+#
+#  -
+#    name: GRPC Connector 1
+#    key: auto
+#    type: grpc
+#    configuration: grpc_connector_1.json
+>>>>>>> f300957bd3d71aeecbc8fe475e629fee5adb4024

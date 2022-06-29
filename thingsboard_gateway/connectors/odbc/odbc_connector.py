@@ -11,7 +11,7 @@
 #     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #     See the License for the specific language governing permissions and
 #     limitations under the License.
-
+from time import time
 from hashlib import sha1
 from os import path
 from pathlib import Path
@@ -246,14 +246,18 @@ class OdbcConnector(Connector, Thread):
                 del to_send['telemetry']['ts']
 
             device_name = eval(self.__config["mapping"]["device"]["name"], globals(), data)
+
+            device_type = eval(self.__config["mapping"]["device"]["type"], globals(), data)
+            if not device_type:
+                device_type = self.__config["mapping"]["device"].get("type", "default")
+
             if device_name not in self.__devices:
                 self.__devices[device_name] = {"attributes": {}, "telemetry": {}}
-                self.__gateway.add_device(device_name, {"connector": self})
+                self.__gateway.add_device(device_name, {"connector": self},
+                                          device_type=device_type)
 
             self.__iterator["value"] = getattr(row, self.__iterator["name"])
-            self.__check_and_send(device_name,
-                                  self.__config["mapping"]["device"].get("type", self._connector_type),
-                                  to_send)
+            self.__check_and_send(device_name, device_type, to_send)
         except Exception as e:
             log.warning("[%s] Failed to process database row: %s", self.get_name(), str(e))
 
@@ -278,7 +282,9 @@ class OdbcConnector(Connector, Thread):
         if to_send["attributes"] or to_send["telemetry"]:
             to_send["deviceName"] = device_name
             to_send["deviceType"] = device_type
-            to_send['telemetry'] = {'values': new_data['telemetry'], 'ts': new_data.get('ts').timestamp()}
+
+            to_send['telemetry'] = {'ts': new_data.get('ts', int(time()) * 1000), 'values': new_data['telemetry']}
+
             log.debug("[%s] Pushing to TB server '%s' device data: %s", self.get_name(), device_name, to_send)
 
             to_send['telemetry'] = [to_send['telemetry']]

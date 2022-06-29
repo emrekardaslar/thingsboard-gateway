@@ -73,7 +73,7 @@ class BytesModbusUplinkConverter(ModbusConverter):
                                 # pylint: disable=E1123
                                 decoder = BinaryPayloadDecoder.fromRegisters(registers, endian=endian_order, wordorder=word_endian_order)
                             assert decoder is not None
-                            decoded_data = self.__decode_from_registers(decoder, configuration)
+                            decoded_data = self.decode_from_registers(decoder, configuration)
                             if configuration.get("divider"):
                                 decoded_data = float(decoded_data) / float(configuration["divider"])
                             if configuration.get("multiplier"):
@@ -92,7 +92,7 @@ class BytesModbusUplinkConverter(ModbusConverter):
         return self.__result
 
     @staticmethod
-    def __decode_from_registers(decoder, configuration):
+    def decode_from_registers(decoder, configuration):
         type_ = configuration["type"]
         objects_count = configuration.get("objectsCount", configuration.get("registersCount", configuration.get("registerCount", 1)))
         lower_type = type_.lower()
