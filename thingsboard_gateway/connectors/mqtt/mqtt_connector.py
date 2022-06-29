@@ -409,10 +409,10 @@ class MqttConnector(Connector, Thread):
         self.statistics['MessagesReceived'] += 1
         topic = message.topic
         node_id = message.topic.split("/")[1]
-        if node_id != self.__client_ID.split('-')[1]:
-            return
-        else:
-            topic = topic.replace('/' + node_id, '')
+        # if node_id != self.__client_ID.split('-')[1]:
+        #     return
+        # else:
+        topic = topic.replace('/' + node_id, '')
         valid_topic = self.check_topic(topic)
         content = TBUtility.decode(message)
         # if self.is_connected():
