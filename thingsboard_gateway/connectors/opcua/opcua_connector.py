@@ -32,7 +32,7 @@ try:
 except ImportError:
     print("OPC-UA library not found")
     TBUtility.install_package("opcua")
-    from opcua import Client, ua
+    from opcua import Client, Node, ua
 
 try:   
     from opcua.crypto import uacrypto
@@ -94,6 +94,10 @@ class OpcUaConnector(Thread, Connector):
             self.client = None
 
         self.client = Client(self.__opcua_url, timeout=self.__server_conf.get("timeoutInMillis", 4000) / 1000)
+
+        if self.__server_conf.get('uri'):
+            self.client.application_uri = self.__server_conf['uri']
+
         if self.__server_conf["identity"].get("type") == "cert.PEM":
             self.__set_auth_settings_by_cert()
         if self.__server_conf["identity"].get("username"):
@@ -607,9 +611,9 @@ class OpcUaConnector(Thread, Connector):
                                 if self.__show_map:
                                     log.debug("SHOW MAP: Search in %s", new_node_path)
                                 self.__search_node(child_node, fullpath, result=result)
-                            elif new_node_class == ua.NodeClass.Variable:
-                                log.debug("Found in %s", new_node_path)
-                                result.append(child_node)
+                            # elif new_node_class == ua.NodeClass.Variable:
+                            #     log.debug("Found in %s", new_node_path)
+                            #     result.append(child_node)
                             elif new_node_class == ua.NodeClass.Method and search_method:
                                 log.debug("Found in %s", new_node_path)
                                 result.append(child_node)
