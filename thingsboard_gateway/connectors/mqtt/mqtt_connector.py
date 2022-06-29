@@ -584,40 +584,22 @@ class MqttConnector(Connector, Thread):
                         attribute_name_match = search(
                             handler["attributeNameTopicExpression"], message.topic)
                         if attribute_name_match is not None:
-<<<<<<< HEAD
-                            found_attribute_name = attribute_name_match.group(
-                                0)
-                    elif handler.get("attributeNameJsonExpression"):
-                        found_attribute_name = TBUtility.get_value(
-                            handler["attributeNameJsonExpression"], content)
-=======
                             found_attribute_names = attribute_name_match.group(0)
                     elif handler.get("attributeNameJsonExpression"):
                         found_attribute_names = list(filter(lambda x: x is not None,
                                                             TBUtility.get_values(handler["attributeNameJsonExpression"],
                                                                                  content)))
->>>>>>> f300957bd3d71aeecbc8fe475e629fee5adb4024
 
                     if found_device_name is None:
                         self.__log.error(
                             "Device name missing from attribute request")
                         continue
 
-<<<<<<< HEAD
-                    if found_attribute_name is None:
-                        self.__log.error(
-                            "Attribute name missing from attribute request")
-                        continue
-
-                    self.__log.info("Will retrieve attribute %s of %s",
-                                    found_attribute_name, found_device_name)
-=======
                     if found_attribute_names is None:
                         self.__log.error("Attribute name missing from attribute request")
                         continue
 
                     self.__log.info("Will retrieve attribute %s of %s", found_attribute_names, found_device_name)
->>>>>>> f300957bd3d71aeecbc8fe475e629fee5adb4024
                     self.__gateway.tb_client.client.gw_request_shared_attributes(
                         found_device_name,
                         found_attribute_names,
@@ -777,12 +759,7 @@ class MqttConnector(Connector, Thread):
 
                 data_to_send = rpc_config.get('valueExpression')
                 for (tag, value) in zip(data_to_send_tags, data_to_send_values):
-<<<<<<< HEAD
-                    data_to_send = data_to_send.replace(
-                        '${' + tag + '}', str(value))
-=======
                     data_to_send = data_to_send.replace('${' + tag + '}', simplejson.dumps(value))
->>>>>>> f300957bd3d71aeecbc8fe475e629fee5adb4024
 
                 try:
                     self.__log.info("Publishing to: %s with data %s",

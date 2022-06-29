@@ -21,11 +21,7 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-<<<<<<< HEAD
 VERSION = "3.0.1.7"
-=======
-VERSION = "3.1"
->>>>>>> f300957bd3d71aeecbc8fe475e629fee5adb4024
 
 setup(
     version=VERSION,
